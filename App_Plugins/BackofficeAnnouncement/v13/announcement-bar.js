@@ -54,21 +54,15 @@
         var container = document.getElementById(BAR_CONTAINER_ID);
         var height = container ? container.offsetHeight : 0;
 
-        // Umbraco 13 uses fixed/absolute positioned layout elements that
-        // aren't affected by body padding. Push them down by adjusting their
-        // top offset and reducing their height to compensate.
-        var children = document.body.children;
-        for (var i = 0; i < children.length; i++) {
-            var el = children[i];
-            if (el.id === BAR_CONTAINER_ID || el.tagName === "SCRIPT" || el.tagName === "STYLE" || el.tagName === "LINK") continue;
-            var computed = window.getComputedStyle(el);
-            if (computed.position === "fixed" || computed.position === "absolute") {
-                el.style.top = height ? height + "px" : "";
-                el.style.height = height ? "calc(100% - " + height + "px)" : "";
-            }
+        // Umbraco 13 shell is rooted in #mainwrapper. Offset only that wrapper
+        // so header/nav/content move together without shifting nested layers.
+        var mainWrapper = document.getElementById("mainwrapper");
+        if (mainWrapper) {
+            mainWrapper.style.top = height ? height + "px" : "";
+            mainWrapper.style.height = height ? "calc(100% - " + height + "px)" : "";
         }
 
-        // Fallback for any regular flow content
+        // Fallback for regular flow nodes.
         document.body.style.paddingTop = height ? height + "px" : "";
     }
 
