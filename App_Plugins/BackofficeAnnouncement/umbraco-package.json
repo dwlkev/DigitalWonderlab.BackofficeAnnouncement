@@ -1,0 +1,25 @@
+{
+  "$schema": "../../umbraco-package-schema.json",
+  "name": "BackofficeAnnouncement",
+  "version": "1.0.0",
+  "extensions": [
+    {
+      "type": "dashboard",
+      "alias": "backofficeAnnouncementDashboard",
+      "name": "Backoffice Announcement",
+      "js": "/App_Plugins/BackofficeAnnouncement/backoffice-announcement.js",
+      "elementName": "backoffice-announcement-dashboard",
+      "weight": 10,
+      "meta": {
+        "label": "Backoffice Announcement",
+        "pathname": "backoffice-announcement"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Settings"
+        }
+      ]
+    }
+  ]
+}

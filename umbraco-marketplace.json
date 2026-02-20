@@ -1,0 +1,24 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Name": "Digital Wonderlab",
+    "Description": "As a proud Certified B Corporation\u00ae, we are passionate about amplifying the voices and visions of purpose-driven start-ups, SMEs, not-for-profits, and global enterprises.",
+    "Url": "https://digitalwonderlab.com",
+    "ImageUrl": "https://i.imgur.com/jDN3Knz.png",
+    "Contributors": [
+      {
+        "Name": "Kevin Triggle"
+      }
+    ],
+    "SyncContributorsFromRepository": false
+  },
+  "Category": "Editor Tools",
+  "IssueTrackerUrl": "https://github.com/dwlkev/DigitalWonderlab.BackofficeAnnouncement/issues",
+  "Description": "A backoffice announcement bar for Umbraco. Toggle on/off a simple text announcement visible to all backoffice users.",
+  "LicenseTypes": [ "Free" ],
+  "PackageType": "Package",
+  "Screenshots": [],
+  "Tags": [ "Editor Tools", "Backoffice", "Announcement" ],
+  "Title": "Backoffice Announcement",
+  "VersionDependencyMode": "SemVer"
+}

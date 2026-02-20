@@ -1,0 +1,26 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<BackofficeAnnouncementContentFilesPath>$(MSBuildThisFileDirectory)..\content\App_Plugins\BackofficeAnnouncement\**\*</BackofficeAnnouncementContentFilesPath>
+	</PropertyGroup>
+
+	<Target Name="CopyBackofficeAnnouncementAssets" BeforeTargets="Build">
+		<ItemGroup>
+			<BackofficeAnnouncementContentFiles Include="$(BackofficeAnnouncementContentFilesPath)" />
+		</ItemGroup>
+		<Message Text="Copying BackofficeAnnouncement files: $(BackofficeAnnouncementContentFilesPath) - #@(BackofficeAnnouncementContentFiles->Count()) files" Importance="high" />
+		<Copy
+		  SourceFiles="@(BackofficeAnnouncementContentFiles)"
+		  DestinationFiles="@(BackofficeAnnouncementContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\BackofficeAnnouncement\%(RecursiveDir)%(Filename)%(Extension)')"
+		  SkipUnchangedFiles="true" />
+	</Target>
+
+	<Target Name="ClearBackofficeAnnouncementAssets" BeforeTargets="Clean">
+		<ItemGroup>
+			<BackofficeAnnouncementDir Include="$(MSBuildProjectDirectory)\App_Plugins\BackofficeAnnouncement\" />
+		</ItemGroup>
+		<Message Text="Clear old BackofficeAnnouncement data" Importance="high" />
+		<RemoveDir Directories="@(BackofficeAnnouncementDir)" />
+	</Target>
+
+</Project>

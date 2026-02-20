@@ -1,0 +1,32 @@
+<div class="announcement-wrapper">
+    <uui-box class="announcement-box">
+        <h1>Backoffice Announcement</h1>
+        <p>
+            Configure an announcement bar that is visible to all backoffice users.
+            Toggle it on or off and set the message below.
+        </p>
+
+        <div class="status-row">
+            <span>Current status:</span>
+            <span id="statusIndicator" class="status-badge status-inactive">Inactive</span>
+        </div>
+    </uui-box>
+
+    <div class="settings-section">
+        <h3>Settings</h3>
+
+        <div class="setting-row">
+            <label for="enabledToggle">Enable announcement</label>
+            <input type="checkbox" id="enabledToggle" />
+        </div>
+
+        <div class="setting-row">
+            <label for="messageInput">Announcement message</label>
+            <textarea id="messageInput" rows="3" placeholder="Enter your announcement message..."></textarea>
+        </div>
+
+        <uui-button id="saveBtn" label="Save" look="primary" class="save-btn"></uui-button>
+    </div>
+
+    <div class="copy">Created with &#x1F497; by <a href="https://digitalwonderlab.com" target="_blank">Digital Wonderlab</a></div>
+</div>
