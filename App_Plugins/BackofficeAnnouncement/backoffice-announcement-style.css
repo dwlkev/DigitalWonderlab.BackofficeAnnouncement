@@ -9,47 +9,157 @@
     font-weight: bold;
 }
 
-.announcement-wrapper h3 {
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
 .announcement-box {
     margin-bottom: 15px;
-    position: relative;
 }
 
-.status-row {
-    margin-top: 10px;
+/* Card list */
+.announcement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+/* Individual announcement card */
+.announcement-card {
+    border: 1px solid #d4d4d4;
+    border-radius: 6px;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: background-color 0.2s;
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: #2bc37c;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(16px);
+}
+
+.card-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #f8f8f8;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
     gap: 10px;
 }
 
-.status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.85em;
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+
+.card-summary {
     font-weight: 600;
+    font-size: 0.95em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
 }
 
-.status-active {
-    background: #d4edda;
-    color: #155724;
+.card-user-group-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.75em;
+    font-weight: 600;
+    background: #e7e7f1;
+    color: #444;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.status-inactive {
-    background: #f8d7da;
-    color: #721c24;
+.card-user-group-badge:empty {
+    display: none;
 }
 
-.settings-section {
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-    margin-top: 20px;
+.card-header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
 }
 
+.card-toggle-btn,
+.card-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    color: #666;
+    border-radius: 4px;
+    line-height: 1;
+}
+
+.card-toggle-btn:hover,
+.card-delete-btn:hover {
+    background: #e0e0e0;
+}
+
+.card-delete-btn {
+    font-size: 20px;
+    color: #c00;
+}
+
+.card-toggle-btn.collapsed {
+    transform: rotate(-90deg);
+}
+
+.card-body {
+    padding: 14px;
+}
+
+.card-body.collapsed {
+    display: none;
+}
+
+/* Settings rows */
 .setting-row {
     margin-bottom: 15px;
     display: flex;
@@ -68,7 +178,8 @@
     cursor: pointer;
 }
 
-.setting-row textarea {
+.setting-row textarea,
+.setting-row select {
     width: 100%;
     max-width: 600px;
     padding: 8px;
@@ -80,8 +191,52 @@
     box-sizing: border-box;
 }
 
-.save-btn {
-    margin-top: 10px;
+.setting-row select {
+    resize: none;
+    cursor: pointer;
+}
+
+.color-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-picker-row input[type="color"] {
+    width: 40px;
+    height: 36px;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+}
+
+.color-picker-row input[type="text"] {
+    width: 100px;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 0.95em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.bar-preview {
+    padding: 10px 16px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.4;
+    background: #1b264f;
+    color: #fff;
+    max-width: 600px;
+}
+
+.action-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 .copy {

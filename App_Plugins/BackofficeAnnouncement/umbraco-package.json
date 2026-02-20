@@ -18,8 +18,17 @@
         {
           "alias": "Umb.Condition.SectionAlias",
           "match": "Umb.Section.Settings"
+        },
+        {
+          "alias": "Umb.Condition.CurrentUser.IsAdmin"
         }
       ]
+    },
+    {
+      "type": "backofficeEntryPoint",
+      "alias": "backofficeAnnouncementBar",
+      "name": "Backoffice Announcement Bar",
+      "js": "/App_Plugins/BackofficeAnnouncement/announcement-bar.js"
     }
   ]
 }

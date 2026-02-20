@@ -1,9 +1,9 @@
 (function () {
     "use strict";
-    angular.module("umbraco").controller("BackofficeAnnouncementV13Controller", function ($element, $timeout) {
+    angular.module("umbraco").controller("BackofficeAnnouncementV13Controller", function ($element, $timeout, notificationsService) {
         $timeout(function () {
             if (window.BackofficeAnnouncementV13 && typeof window.BackofficeAnnouncementV13.init === "function") {
-                window.BackofficeAnnouncementV13.init($element[0]);
+                window.BackofficeAnnouncementV13.init($element[0], notificationsService);
             }
         }, 0);
     });

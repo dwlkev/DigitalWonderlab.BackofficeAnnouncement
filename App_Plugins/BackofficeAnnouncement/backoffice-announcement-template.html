@@ -2,31 +2,81 @@
     <uui-box class="announcement-box">
         <h1>Backoffice Announcement</h1>
         <p>
-            Configure an announcement bar that is visible to all backoffice users.
-            Toggle it on or off and set the message below.
+            Create announcements visible to backoffice users.
+            Each announcement can target a specific user group with its own message and styling.
         </p>
-
-        <div class="status-row">
-            <span>Current status:</span>
-            <span id="statusIndicator" class="status-badge status-inactive">Inactive</span>
-        </div>
     </uui-box>
 
-    <div class="settings-section">
-        <h3>Settings</h3>
+    <div id="announcementList" class="announcement-list"></div>
 
-        <div class="setting-row">
-            <label for="enabledToggle">Enable announcement</label>
-            <input type="checkbox" id="enabledToggle" />
-        </div>
-
-        <div class="setting-row">
-            <label for="messageInput">Announcement message</label>
-            <textarea id="messageInput" rows="3" placeholder="Enter your announcement message..."></textarea>
-        </div>
-
-        <uui-button id="saveBtn" label="Save" look="primary" class="save-btn"></uui-button>
+    <div class="action-bar">
+        <uui-button id="addAnnouncementBtn" label="Add announcement" look="secondary" class="add-btn">
+            <span>+ Add announcement</span>
+        </uui-button>
+        <uui-button id="saveAnnouncementsBtn" label="Save" look="primary" color="positive" class="save-btn">
+            <span>Save</span>
+        </uui-button>
     </div>
 
     <div class="copy">Created with &#x1F497; by <a href="https://digitalwonderlab.com" target="_blank">Digital Wonderlab</a></div>
 </div>
+
+<template id="announcementCardTemplate">
+    <div class="announcement-card" data-id="">
+        <div class="card-header">
+            <div class="card-header-left">
+                <label class="toggle-switch" title="Enable/disable">
+                    <input type="checkbox" class="card-enabled-toggle" />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="card-summary">New announcement</span>
+                <span class="card-user-group-badge"></span>
+            </div>
+            <div class="card-header-right">
+                <button class="card-toggle-btn" title="Expand/collapse">&#9660;</button>
+                <button class="card-delete-btn" title="Delete">&times;</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="setting-row">
+                <label>Announcement message</label>
+                <textarea class="card-message" rows="3" placeholder="Enter your announcement message..."></textarea>
+            </div>
+
+            <div class="setting-row">
+                <label>Target user group</label>
+                <select class="card-user-group">
+                    <option value="">All users</option>
+                </select>
+            </div>
+
+            <div class="setting-row">
+                <label>Allow users to dismiss</label>
+                <input type="checkbox" class="card-allow-dismiss" checked />
+            </div>
+
+            <div class="setting-row">
+                <label>Bar background colour</label>
+                <div class="color-picker-row">
+                    <input type="color" class="card-bg-picker" value="#1b264f" />
+                    <input type="text" class="card-bg-input" value="#1b264f" placeholder="#1b264f" maxlength="7" />
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <label>Bar text colour</label>
+                <div class="color-picker-row">
+                    <input type="color" class="card-txt-picker" value="#ffffff" />
+                    <input type="text" class="card-txt-input" value="#ffffff" placeholder="#ffffff" maxlength="7" />
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <label>Preview</label>
+                <div class="bar-preview">
+                    <span class="card-preview-message">Your announcement message here</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

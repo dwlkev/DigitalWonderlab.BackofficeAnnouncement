@@ -4,12 +4,16 @@
       "alias": "DigitalWonderlab.BackofficeAnnouncement",
       "view": "/App_Plugins/BackofficeAnnouncement/v13/dashboard.html",
       "sections": [ "settings" ],
-      "weight": 10
+      "weight": 10,
+      "access": [
+        { "grant": "admin" }
+      ]
     }
   ],
   "javascript": [
     "/App_Plugins/BackofficeAnnouncement/v13/controller.js",
-    "/App_Plugins/BackofficeAnnouncement/v13/app.js"
+    "/App_Plugins/BackofficeAnnouncement/v13/app.js",
+    "/App_Plugins/BackofficeAnnouncement/v13/announcement-bar.js"
   ],
   "css": [
     "/App_Plugins/BackofficeAnnouncement/backoffice-announcement-style.css"
