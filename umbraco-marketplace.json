@@ -17,7 +17,14 @@
   "Description": "A backoffice announcement bar for Umbraco. Toggle on/off a simple text announcement visible to all backoffice users.",
   "LicenseTypes": [ "Free" ],
   "PackageType": "Package",
-  "Screenshots": [],
+  "Screenshots": [
+    {
+      "ImageUrl": "https://i.postimg.cc/wTbW3HFg/announcement2.png"
+    },
+    {
+      "ImageUrl": "https://i.postimg.cc/h4Z81smT/announcement1.png"
+    }
+  ],  
   "Tags": [ "Editor Tools", "Backoffice", "Announcement" ],
   "Title": "Backoffice Announcement",
   "VersionDependencyMode": "SemVer"

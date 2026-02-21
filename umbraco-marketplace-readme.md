@@ -21,3 +21,6 @@ A backoffice announcement bar for Umbraco 13 - 17. Toggle on/off a simple text a
 
 ## Issues / Suggestions
 - To report an issue or suggest a feature please use the GitHub issue tracker - https://github.com/dwlkev/DigitalWonderlab.BackofficeAnnouncement/issues
+
+## Screenshots
+![Dashboard](https://i.postimg.cc/wTbW3HFg/announcement2.png)
