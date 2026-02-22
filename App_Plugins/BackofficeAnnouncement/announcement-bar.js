@@ -47,10 +47,42 @@ function renderBars(announcements) {
     adjustBodyPadding();
 }
 
+function findInShadowDOM(selector, root = document) {
+    // Try direct query first
+    let element = root.querySelector(selector);
+    if (element) return element;
+
+    // Recursively search through shadow roots
+    const allElements = root.querySelectorAll('*');
+    for (const el of allElements) {
+        if (el.shadowRoot) {
+            element = findInShadowDOM(selector, el.shadowRoot);
+            if (element) return element;
+        }
+    }
+    return null;
+}
+
 function adjustBodyPadding() {
     const container = document.getElementById(BAR_CONTAINER_ID);
     const height = container ? container.offsetHeight : 0;
+
+    // Set body padding
     document.body.style.paddingTop = height ? height + "px" : "";
+
+    // Find umb-backoffice-main through shadow DOM with retry
+    function tryAdjust(retries = 0) {
+        const backofficeMain = findInShadowDOM("umb-backoffice-main");
+
+        if (backofficeMain) {
+            const newHeight = height ? `calc(100% - ${60 + height}px)` : "";
+            backofficeMain.style.height = newHeight;
+        } else if (retries < 10) {
+            setTimeout(() => tryAdjust(retries + 1), 100);
+        }
+    }
+
+    tryAdjust();
 }
 
 function injectStyles() {
@@ -61,6 +93,7 @@ function injectStyles() {
     style.textContent = `
         #${BAR_CONTAINER_ID} {
             position: fixed; top: 0; left: 0; width: 100%; z-index: 99999;
+            max-height: 120px; overflow-y: auto; overflow-x: hidden;
         }
         .ba-bar {
             font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -84,9 +117,12 @@ function injectStyles() {
 
 function filterByUserGroup(announcements) {
     if (!currentUserGroupAliases) return announcements;
-    return announcements.filter(a =>
-        !a.targetUserGroup || currentUserGroupAliases.includes(a.targetUserGroup)
-    );
+    return announcements.filter(a => {
+        // If no target groups specified, show to everyone
+        if (!a.targetUserGroups || a.targetUserGroups.length === 0) return true;
+        // Check if user is in ANY of the target groups
+        return a.targetUserGroups.some(group => currentUserGroupAliases.includes(group));
+    });
 }
 
 async function fetchCurrentUserGroups(authToken) {
@@ -95,13 +131,10 @@ async function fetchCurrentUserGroups(authToken) {
         if (authToken) {
             headers["Authorization"] = `Bearer ${authToken}`;
         }
-        console.log("[BackofficeAnnouncement] Fetching current user with token:", authToken ? "yes" : "no");
 
         const userRes = await fetch("/umbraco/management/api/v1/user/current", { headers });
-        console.log("[BackofficeAnnouncement] User endpoint status:", userRes.status);
         if (!userRes.ok) return;
         const user = await userRes.json();
-        console.log("[BackofficeAnnouncement] User response:", JSON.stringify(user, null, 2));
 
         // Map userGroupIds (array of {id: "guid"} objects) to aliases
         var groupIds = (user.userGroupIds || []).map(g => g.id);
@@ -109,13 +142,10 @@ async function fetchCurrentUserGroups(authToken) {
             const groupsRes = await fetch("/umbraco/api/backofficeannouncement/usergroups");
             if (!groupsRes.ok) return;
             const allGroups = await groupsRes.json();
-            console.log("[BackofficeAnnouncement] All groups:", JSON.stringify(allGroups));
-            console.log("[BackofficeAnnouncement] User group IDs:", groupIds);
 
             currentUserGroupAliases = allGroups
                 .filter(g => groupIds.includes(g.key))
                 .map(g => g.alias);
-            console.log("[BackofficeAnnouncement] Matched user group aliases:", currentUserGroupAliases);
         }
     } catch (e) {
         console.error("[BackofficeAnnouncement] fetchCurrentUserGroups failed:", e);
@@ -139,15 +169,12 @@ async function poll() {
 
 // Entry point for Umbraco 14+ backoffice
 export const onInit = (host) => {
-    console.log("[BackofficeAnnouncement] onInit called, host:", host);
     injectStyles();
 
     host.consumeContext(UMB_AUTH_CONTEXT, async (authContext) => {
-        console.log("[BackofficeAnnouncement] Auth context received:", authContext);
         if (authContext) {
             try {
                 const token = await authContext.getLatestToken();
-                console.log("[BackofficeAnnouncement] Got token:", token ? "yes" : "no");
                 await fetchCurrentUserGroups(token);
             } catch (e) {
                 console.error("[BackofficeAnnouncement] Token/user fetch failed:", e);

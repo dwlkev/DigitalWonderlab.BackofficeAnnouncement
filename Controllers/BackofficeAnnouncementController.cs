@@ -101,7 +101,7 @@ public class BackofficeAnnouncementController : ControllerBase
             .Where(a => a.Enabled && !string.IsNullOrWhiteSpace(a.Message))
             .ToList();
 
-        // Return all active announcements including targetUserGroup
+        // Return all active announcements including targetUserGroups
         // so the client-side JS can filter based on the current user's groups
         return Ok(active.Select(a => new
         {
@@ -110,7 +110,7 @@ public class BackofficeAnnouncementController : ControllerBase
             allowDismiss = a.AllowDismiss,
             backgroundColor = a.BackgroundColor,
             textColor = a.TextColor,
-            targetUserGroup = a.TargetUserGroup
+            targetUserGroups = a.TargetUserGroups ?? new List<string>()
         }).ToList());
     }
 
@@ -179,5 +179,9 @@ public class Announcement
     public bool AllowDismiss { get; set; } = true;
     public string BackgroundColor { get; set; } = "#1b264f";
     public string TextColor { get; set; } = "#ffffff";
-    public string TargetUserGroup { get; set; } = string.Empty;
+    public List<string> TargetUserGroups { get; set; } = new();
+
+    // Legacy field for backward compatibility
+    [Obsolete("Use TargetUserGroups list")]
+    public string? TargetUserGroup { get; set; }
 }

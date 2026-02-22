@@ -64,6 +64,11 @@
 
         // Fallback for regular flow nodes.
         document.body.style.paddingTop = height ? height + "px" : "";
+
+        // Dispatch resize event to trigger Umbraco's layout recalculation
+        setTimeout(function () {
+            window.dispatchEvent(new Event("resize"));
+        }, 50);
     }
 
     function injectStyles() {
@@ -74,6 +79,7 @@
         style.textContent =
             "#" + BAR_CONTAINER_ID + " {" +
                 "position: fixed; top: 0; left: 0; width: 100%; z-index: 99999;" +
+                "max-height: 120px; overflow-y: auto; overflow-x: hidden;" +
             "}" +
             ".ba-bar {" +
                 "font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);" +
@@ -98,7 +104,15 @@
     function filterByUserGroup(announcements) {
         if (!currentUserGroupAliases) return announcements;
         return announcements.filter(function (a) {
-            return !a.targetUserGroup || currentUserGroupAliases.indexOf(a.targetUserGroup) !== -1;
+            // If no target groups specified, show to everyone
+            if (!a.targetUserGroups || a.targetUserGroups.length === 0) return true;
+            // Check if user is in ANY of the target groups
+            for (var i = 0; i < a.targetUserGroups.length; i++) {
+                if (currentUserGroupAliases.indexOf(a.targetUserGroups[i]) !== -1) {
+                    return true;
+                }
+            }
+            return false;
         });
     }
 

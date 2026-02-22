@@ -254,3 +254,35 @@
     text-decoration: none !important;
     font-weight: 600 !important;
 }
+
+/* User group checkboxes */
+.user-group-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.user-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-group-checkbox input[type="checkbox"] {
+    margin: 0;
+}
+
+.user-group-checkbox label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.help-text {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 0.85em;
+    font-style: italic;
+}

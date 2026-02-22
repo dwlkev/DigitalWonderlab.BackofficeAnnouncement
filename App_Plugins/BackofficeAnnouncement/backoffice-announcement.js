@@ -61,14 +61,26 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
         }
     }
 
-    populateUserGroupSelect(select, selectedAlias) {
-        select.innerHTML = '<option value="">All users</option>';
-        for (const g of this.#userGroups) {
-            const opt = document.createElement("option");
-            opt.value = g.alias;
-            opt.textContent = g.name;
-            if (g.alias === selectedAlias) opt.selected = true;
-            select.appendChild(opt);
+    populateUserGroupCheckboxes(container, selectedGroups = []) {
+        container.innerHTML = '';
+        for (let i = 0; i < this.#userGroups.length; i++) {
+            const g = this.#userGroups[i];
+            const wrapper = document.createElement("div");
+            wrapper.className = "user-group-checkbox";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = g.alias;
+            checkbox.id = `ug-${g.alias}-${Date.now()}-${i}`;
+            checkbox.checked = selectedGroups.indexOf(g.alias) !== -1;
+
+            const label = document.createElement("label");
+            label.htmlFor = checkbox.id;
+            label.textContent = g.name;
+
+            wrapper.appendChild(checkbox);
+            wrapper.appendChild(label);
+            container.appendChild(wrapper);
         }
     }
 
@@ -89,8 +101,19 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
         summary.textContent = data.message || "New announcement";
 
         const badge = q(".card-user-group-badge");
-        const group = this.#userGroups.find(g => g.alias === data.targetUserGroup);
-        badge.textContent = group ? group.name : data.targetUserGroup ? data.targetUserGroup : "";
+        const updateBadge = () => {
+            const selectedGroups = data.targetUserGroups || [];
+            if (selectedGroups.length === 0) {
+                badge.textContent = "";
+            } else {
+                const names = selectedGroups.map(alias => {
+                    const g = this.#userGroups.find(ug => ug.alias === alias);
+                    return g ? g.name : alias;
+                });
+                badge.textContent = names.join(", ");
+            }
+        };
+        updateBadge();
 
         // Toggle expand/collapse
         const toggleBtn = q(".card-toggle-btn");
@@ -116,11 +139,15 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
             this.updateCardPreview(card);
         });
 
-        const userGroupSelect = q(".card-user-group");
-        this.populateUserGroupSelect(userGroupSelect, data.targetUserGroup);
-        userGroupSelect.addEventListener("change", () => {
-            const selected = this.#userGroups.find(g => g.alias === userGroupSelect.value);
-            badge.textContent = selected ? selected.name : "";
+        const userGroupContainer = q(".user-group-checkboxes");
+        this.populateUserGroupCheckboxes(userGroupContainer, data.targetUserGroups || []);
+        userGroupContainer.addEventListener("change", () => {
+            const checkboxes = userGroupContainer.querySelectorAll("input[type='checkbox']");
+            data.targetUserGroups = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) data.targetUserGroups.push(cb.value);
+            });
+            updateBadge();
         });
 
         const allowDismiss = q(".card-allow-dismiss");
@@ -176,6 +203,11 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
 
         for (const card of cards) {
             const q = (sel) => card.querySelector(sel);
+
+            const targetUserGroups = [];
+            const checkboxes = q(".user-group-checkboxes").querySelectorAll("input[type='checkbox']:checked");
+            checkboxes.forEach(cb => targetUserGroups.push(cb.value));
+
             announcements.push({
                 id: card.dataset.id,
                 enabled: q(".card-enabled-toggle").checked,
@@ -183,7 +215,7 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
                 allowDismiss: q(".card-allow-dismiss").checked,
                 backgroundColor: q(".card-bg-input").value || "#1b264f",
                 textColor: q(".card-txt-input").value || "#ffffff",
-                targetUserGroup: q(".card-user-group").value
+                targetUserGroups: targetUserGroups
             });
         }
 

@@ -13,15 +13,27 @@
             });
         }
 
-        function populateUserGroupSelect(select, selectedAlias) {
-            select.innerHTML = '<option value="">All users</option>';
+        function populateUserGroupCheckboxes(container, selectedGroups) {
+            container.innerHTML = '';
+            selectedGroups = selectedGroups || [];
             for (var i = 0; i < userGroups.length; i++) {
                 var g = userGroups[i];
-                var opt = document.createElement("option");
-                opt.value = g.alias;
-                opt.textContent = g.name;
-                if (g.alias === selectedAlias) opt.selected = true;
-                select.appendChild(opt);
+                var wrapper = document.createElement("div");
+                wrapper.className = "user-group-checkbox";
+
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = g.alias;
+                checkbox.id = "ug-" + g.alias + "-" + Date.now() + "-" + i;
+                checkbox.checked = selectedGroups.indexOf(g.alias) !== -1;
+
+                var label = document.createElement("label");
+                label.htmlFor = checkbox.id;
+                label.textContent = g.name;
+
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+                container.appendChild(wrapper);
             }
         }
 
@@ -66,8 +78,19 @@
             summary.textContent = data.message || "New announcement";
 
             var badge = q(".card-user-group-badge");
-            var group = userGroups.find(function (g) { return g.alias === data.targetUserGroup; });
-            badge.textContent = group ? group.name : data.targetUserGroup ? data.targetUserGroup : "";
+            function updateBadge() {
+                var selectedGroups = data.targetUserGroups || [];
+                if (selectedGroups.length === 0) {
+                    badge.textContent = "";
+                } else {
+                    var names = selectedGroups.map(function (alias) {
+                        var g = userGroups.find(function (ug) { return ug.alias === alias; });
+                        return g ? g.name : alias;
+                    });
+                    badge.textContent = names.join(", ");
+                }
+            }
+            updateBadge();
 
             var toggleBtn = q(".card-toggle-btn");
             var body = q(".card-body");
@@ -90,11 +113,15 @@
                 updateCardPreview(card);
             });
 
-            var userGroupSelect = q(".card-user-group");
-            populateUserGroupSelect(userGroupSelect, data.targetUserGroup);
-            userGroupSelect.addEventListener("change", function () {
-                var selected = userGroups.find(function (g) { return g.alias === userGroupSelect.value; });
-                badge.textContent = selected ? selected.name : "";
+            var userGroupContainer = q(".user-group-checkboxes");
+            populateUserGroupCheckboxes(userGroupContainer, data.targetUserGroups || []);
+            userGroupContainer.addEventListener("change", function () {
+                var checkboxes = userGroupContainer.querySelectorAll("input[type='checkbox']");
+                data.targetUserGroups = [];
+                checkboxes.forEach(function (cb) {
+                    if (cb.checked) data.targetUserGroups.push(cb.value);
+                });
+                updateBadge();
             });
 
             var allowDismiss = q(".card-allow-dismiss");
@@ -122,6 +149,12 @@
             var announcements = [];
             cards.forEach(function (card) {
                 var q = function (sel) { return card.querySelector(sel); };
+                var targetUserGroups = [];
+                var checkboxes = q(".user-group-checkboxes").querySelectorAll("input[type='checkbox']:checked");
+                checkboxes.forEach(function (cb) {
+                    targetUserGroups.push(cb.value);
+                });
+
                 announcements.push({
                     id: card.dataset.id,
                     enabled: q(".card-enabled-toggle").checked,
@@ -129,7 +162,7 @@
                     allowDismiss: q(".card-allow-dismiss").checked,
                     backgroundColor: q(".card-bg-input").value || "#1b264f",
                     textColor: q(".card-txt-input").value || "#ffffff",
-                    targetUserGroup: q(".card-user-group").value
+                    targetUserGroups: targetUserGroups
                 });
             });
             return { announcements: announcements };
