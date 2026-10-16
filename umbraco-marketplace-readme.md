@@ -36,7 +36,7 @@ Known limitation: on Umbraco 14 the Settings dashboard is not shown (it relies o
 in Umbraco 15). The bar works on 14. Umbraco 14 is end of life.
 
 ## Telemetry (1.1.0)
-Once a day Backoffice Announcement sends Digital Wonderlab a small anonymous report so we know how many sites use it
+Once a day Backoffice Announcement sends us a small anonymous report so we know how many sites use it
 and on which versions. It is on by default and easy to turn off.
 
 - **Sent:** a random install ID (created on first run, stored in your Umbraco database, not derived from anything
