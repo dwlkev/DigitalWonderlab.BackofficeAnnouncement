@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using DigitalWonderlab.BackofficeAnnouncement;
+using DigitalWonderlab.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -165,6 +168,52 @@ public class BackofficeAnnouncementController : ControllerBase
             textColor = a.TextColor,
             targetUserGroups = a.TargetUserGroups ?? new List<string>()
         }).ToList());
+    }
+
+    public record TelemetryToggleRequest(bool Enabled);
+
+    [HttpGet("telemetry")]
+    [Authorize(Policy = SettingsPolicy)]
+    public IActionResult GetTelemetry()
+    {
+        var builder = HttpContext.RequestServices.GetRequiredService<TelemetryPayloadBuilder>();
+        return Ok(new { enabled = builder.IsProductToggleOn(BackofficeAnnouncementTelemetryContributor.Product) });
+    }
+
+    // No [Consumes]: on Umbraco 14 / .NET 8 it made the GET twin on the same route 404.
+    [HttpPost("telemetry")]
+    [Authorize(Policy = SettingsPolicy)]
+    public IActionResult SaveTelemetry([FromBody] TelemetryToggleRequest request)
+    {
+        var builder = HttpContext.RequestServices.GetRequiredService<TelemetryPayloadBuilder>();
+        builder.SetProductToggle(BackofficeAnnouncementTelemetryContributor.Product, request.Enabled);
+        return Ok(new { enabled = request.Enabled });
+    }
+
+    /// <summary>The exact heartbeat this site would send next, shown on the dashboard's Settings tab.</summary>
+    [HttpGet("telemetry/preview")]
+    [Authorize(Policy = SettingsPolicy)]
+    public IActionResult PreviewTelemetry()
+    {
+        var builder = HttpContext.RequestServices.GetRequiredService<TelemetryPayloadBuilder>();
+        var contributor = HttpContext.RequestServices.GetServices<ITelemetryContributor>()
+            .First(c => c.ProductId == BackofficeAnnouncementTelemetryContributor.Product);
+        return Ok(new
+        {
+            endpoint = builder.Endpoint,
+            enabled = builder.GloballyEnabled && contributor.IsEnabled(),
+            environmentAllowed = builder.EnvironmentAllowed,
+            payload = builder.Build(contributor)
+        });
+    }
+
+    /// <summary>Settings as currently stored (sanitised), for the telemetry contributor.</summary>
+    internal static AnnouncementSettings ReadStored(string contentRootPath)
+    {
+        var path = Path.Combine(contentRootPath, "App_Data", "BackofficeAnnouncement", "settings.json");
+        if (!System.IO.File.Exists(path)) return new AnnouncementSettings();
+        try { return Sanitise(JsonSerializer.Deserialize<AnnouncementSettings>(System.IO.File.ReadAllText(path), JsonOptions)); }
+        catch { return new AnnouncementSettings(); }
     }
 
 #if NET10_0_OR_GREATER

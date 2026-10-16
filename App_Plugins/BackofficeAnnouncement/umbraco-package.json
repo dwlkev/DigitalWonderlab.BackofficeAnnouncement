@@ -1,7 +1,7 @@
 {
   "$schema": "../../umbraco-package-schema.json",
   "name": "BackofficeAnnouncement",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "extensions": [
     {
       "type": "dashboard",

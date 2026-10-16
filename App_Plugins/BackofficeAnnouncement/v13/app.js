@@ -244,6 +244,71 @@
         });
 
         loadUserGroups().then(function () { loadSettings(); });
+
+        // Search | Settings switch and the anonymous telemetry toggle + preview (1.5.0).
+        // Requests go with the backoffice cookie (same-origin), which the API requires since 1.5.0.
+        (function wireSettings() {
+        var q = function (sel) { return root.querySelector(sel); };
+        var byId = function (id) { return root.querySelector("#" + id); };
+            var api = function (path, init) {
+                init = init || {};
+                init.credentials = "same-origin";
+                init.headers = Object.assign({ "x-requested-with": "XMLHttpRequest" }, init.headers || {});
+                return fetch("/umbraco/backoffice/backofficeannouncement/" + path, init);
+            };
+            var toggle = byId("dwl-telemetry-enabled");
+            var status = byId("dwl-telemetry-status");
+            var preview = byId("dwl-telemetry-preview");
+            var box = byId("dwl-telemetry-preview-box");
+            var wrapper = q(".announcement-wrapper") || root;
+            if (!toggle || !preview || !box) return;
+
+            function loadPreview() {
+                api("telemetry/preview").then(function (r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
+                    return r.json();
+                }).then(function (d) {
+                    var state = !d.enabled ? "Telemetry is off, so nothing is sent."
+                        : !d.environmentAllowed ? "This is a Development environment, so nothing is sent."
+                        : "Sent once a day to " + d.endpoint;
+                    preview.textContent = state + "\n\n" + JSON.stringify(d.payload, null, 2);
+                }).catch(function (e) { preview.textContent = "Could not load the preview (" + e.message + ")."; });
+            }
+            function loadToggle() {
+                api("telemetry").then(function (r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
+                    return r.json();
+                }).then(function (d) {
+                    toggle.checked = d.enabled !== false;
+                    status.textContent = toggle.checked ? "Telemetry is on." : "Telemetry is off.";
+                }).catch(function (e) { status.textContent = "Could not load the setting (" + e.message + ")."; });
+            }
+
+            root.querySelectorAll("uui-tab[data-dwl-view]").forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    var settings = tab.getAttribute("data-dwl-view") === "settings";
+                    root.querySelectorAll("uui-tab[data-dwl-view]").forEach(function (t) { t.active = t === tab; });
+                    wrapper.classList.toggle("dwl-show-settings", settings);
+                    if (settings) loadToggle();
+                });
+            });
+            toggle.addEventListener("change", function () {
+                api("telemetry", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ enabled: toggle.checked })
+                }).then(function (r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
+                    status.textContent = toggle.checked ? "Telemetry is on." : "Telemetry is off.";
+                    if (box.open) loadPreview();
+                }).catch(function (e) {
+                    status.textContent = "Could not save (" + e.message + ").";
+                    toggle.checked = !toggle.checked;
+                });
+            });
+            box.addEventListener("toggle", function () { if (box.open) loadPreview(); });
+        })();
+
     }
 
     w.BackofficeAnnouncementV13 = { init: init };

@@ -1,5 +1,9 @@
 <div class="announcement-wrapper">
     <div ng-controller="BackofficeAnnouncementV13Controller as vm">
+        <uui-tab-group class="dwl-tabs">
+            <uui-tab label="Announcements" data-dwl-view="main" active>Announcements</uui-tab>
+            <uui-tab label="Settings" data-dwl-view="settings">Settings</uui-tab>
+        </uui-tab-group>
         <uui-box class="announcement-box">
             <h1>Backoffice Announcement</h1>
             <p>
@@ -18,6 +22,22 @@
                 <span>Save</span>
             </uui-button>
         </div>
+
+        <uui-box class="dwl-settings" headline="Anonymous telemetry">
+            <p>
+                Once a day this site sends Digital Wonderlab a small anonymous report so we can see how many sites use
+                Backoffice Announcement and on which versions: a random install ID, the package, Umbraco and .NET versions,
+                hosting type, how many announcements exist and are enabled (in bands such as "1-9") and whether targeting
+                or non-dismissible announcements are used. The announcement text is never sent, nor hostnames, URLs, user
+                names or emails. It can also be turned off in config with <code>BackofficeAnnouncement:Telemetry:Enabled = false</code>.
+            </p>
+            <uui-toggle id="dwl-telemetry-enabled" label="Send anonymous telemetry"></uui-toggle>
+            <div id="dwl-telemetry-status"></div>
+            <details id="dwl-telemetry-preview-box">
+                <summary>Show exactly what is sent</summary>
+                <pre id="dwl-telemetry-preview">Loading...</pre>
+            </details>
+        </uui-box>
 
         <div class="copy">
             Created with &#x1F497; by
