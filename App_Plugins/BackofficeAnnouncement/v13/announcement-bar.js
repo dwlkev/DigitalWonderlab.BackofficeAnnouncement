@@ -30,15 +30,23 @@
             bar.dataset.id = a.id;
             bar.style.backgroundColor = a.backgroundColor || "#1b264f";
             bar.style.color = a.textColor || "#ffffff";
-            bar.innerHTML =
-                '<div class="ba-bar-inner">' +
-                    '<span class="ba-bar-message">' + escapeHtml(a.message) + '</span>' +
-                    '<button class="ba-bar-dismiss" title="Dismiss" style="color:' +
-                        (a.textColor || "#ffffff") + ';display:' +
-                        (a.allowDismiss !== false ? '' : 'none') + '">&times;</button>' +
-                '</div>';
+            // Built with DOM calls, never an HTML string: stored values are only ever text or style properties.
+            var inner = document.createElement("div");
+            inner.className = "ba-bar-inner";
+            var msg = document.createElement("span");
+            msg.className = "ba-bar-message";
+            msg.textContent = a.message || "";
+            var dismiss = document.createElement("button");
+            dismiss.className = "ba-bar-dismiss";
+            dismiss.title = "Dismiss";
+            dismiss.textContent = "\u00d7";
+            dismiss.style.color = a.textColor || "#ffffff";
+            if (a.allowDismiss === false) dismiss.style.display = "none";
+            inner.appendChild(msg);
+            inner.appendChild(dismiss);
+            bar.appendChild(inner);
 
-            bar.querySelector(".ba-bar-dismiss").addEventListener("click", function () {
+            dismiss.addEventListener("click", function () {
                 dismissedIds[a.id] = true;
                 bar.remove();
                 adjustBodyPadding();
@@ -153,9 +161,11 @@
 
     async function poll() {
         try {
-            var res = await fetch("/umbraco/api/backofficeannouncement/status", {
+            var res = await fetch("/umbraco/backoffice/backofficeannouncement/status", {
+                credentials: "same-origin",
                 headers: { "x-requested-with": "XMLHttpRequest" }
             });
+            if (!res.ok) return;
             var announcements = await res.json();
 
             if (Array.isArray(announcements) && announcements.length > 0) {

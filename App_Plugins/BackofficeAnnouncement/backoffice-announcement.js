@@ -1,9 +1,18 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
+import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
 
 export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTMLElement) {
     #notificationContext;
     #userGroups = [];
+    #auth;
+
+    /** Calls the announcement API with the backoffice bearer token (required since 1.0.4). */
+    async api(path, init = {}) {
+        const token = this.#auth ? await this.#auth.getLatestToken() : null;
+        const headers = { ...(init.headers || {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+        return fetch(`/umbraco/api/backofficeannouncement/${path}`, { ...init, headers });
+    }
 
     constructor() {
         super();
@@ -49,12 +58,15 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
             this.save();
         });
 
-        this.loadUserGroups().then(() => this.loadSettings());
+        this.consumeContext(UMB_AUTH_CONTEXT, (auth) => {
+            this.#auth = auth;
+            this.loadUserGroups().then(() => this.loadSettings());
+        });
     }
 
     async loadUserGroups() {
         try {
-            const res = await fetch("/umbraco/api/backofficeannouncement/usergroups");
+            const res = await this.api("usergroups");
             this.#userGroups = await res.json();
         } catch (e) {
             console.error("Failed to load user groups", e);
@@ -226,7 +238,7 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
         const settings = this.gatherData();
 
         try {
-            const response = await fetch("/umbraco/api/backofficeannouncement/settings", {
+            const response = await this.api("settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(settings)
@@ -250,7 +262,7 @@ export default class BackofficeAnnouncementDashboard extends UmbElementMixin(HTM
 
     async loadSettings() {
         try {
-            const response = await fetch("/umbraco/api/backofficeannouncement/settings");
+            const response = await this.api("settings");
             const data = await response.json();
 
             const list = this.shadowRoot.getElementById("announcementList");

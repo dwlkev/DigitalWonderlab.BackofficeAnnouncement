@@ -19,6 +19,22 @@ A backoffice announcement bar for Umbraco 13 - 17. Toggle on/off a simple text a
 - Go to Settings and click the Backoffice Announcement tab
 - Toggle the announcement on/off and set your message
 
+## Security (1.0.4) - please upgrade
+Versions up to 1.0.3 did not require a backoffice login for the announcement API, and the bar inserted the
+text colour into HTML without escaping. Together that let anyone change the announcement and run script in
+the browser of every backoffice user. **1.0.4 fixes this:**
+- every API call needs a signed-in backoffice user; changing announcements needs an admin (Umbraco 15+) or
+  Settings-section access (Umbraco 13/14);
+- saved values are validated (colours must be hex) and settings files written by older versions are cleaned
+  when read;
+- the bar is built without HTML string templates, so stored values can only ever be text.
+
+After upgrading, check your announcements in **Settings > Backoffice Announcement** and remove anything you
+did not add.
+
+Known limitation: on Umbraco 14 the Settings dashboard is not shown (it relies on an admin condition added
+in Umbraco 15). The bar works on 14. Umbraco 14 is end of life.
+
 ## Issues / Suggestions
 - To report an issue or suggest a feature please use the GitHub issue tracker - https://github.com/dwlkev/DigitalWonderlab.BackofficeAnnouncement/issues
 

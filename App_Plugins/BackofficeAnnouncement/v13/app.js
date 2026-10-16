@@ -171,8 +171,9 @@
         async function save() {
             var settings = gatherData();
             try {
-                var res = await fetch("/umbraco/api/backofficeannouncement/settings", {
+                var res = await fetch("/umbraco/backoffice/backofficeannouncement/settings", {
                     method: "POST",
+                    credentials: "same-origin",
                     headers: {
                         "Content-Type": "application/json",
                         "x-requested-with": "XMLHttpRequest"
@@ -199,7 +200,8 @@
 
         async function loadUserGroups() {
             try {
-                var res = await fetch("/umbraco/api/backofficeannouncement/usergroups", {
+                var res = await fetch("/umbraco/backoffice/backofficeannouncement/usergroups", {
+                    credentials: "same-origin",
                     headers: { "x-requested-with": "XMLHttpRequest" }
                 });
                 userGroups = await res.json();
@@ -210,7 +212,8 @@
 
         async function loadSettings() {
             try {
-                var res = await fetch("/umbraco/api/backofficeannouncement/settings", {
+                var res = await fetch("/umbraco/backoffice/backofficeannouncement/settings", {
+                    credentials: "same-origin",
                     headers: { "x-requested-with": "XMLHttpRequest" }
                 });
                 var data = await res.json();

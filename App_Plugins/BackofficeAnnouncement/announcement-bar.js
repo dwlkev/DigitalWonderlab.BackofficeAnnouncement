@@ -4,6 +4,13 @@ const BAR_CONTAINER_ID = "backoffice-announcement-bars";
 const POLL_INTERVAL = 60000;
 let dismissedIds = {};
 let currentUserGroupAliases = null;
+let authContext = null;
+
+// The announcement API needs the backoffice bearer token (since 1.0.4).
+async function api(path) {
+    const token = authContext ? await authContext.getLatestToken() : null;
+    return fetch(`/umbraco/api/backofficeannouncement/${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+}
 
 function escapeHtml(str) {
     const div = document.createElement("div");
@@ -29,13 +36,22 @@ function renderBars(announcements) {
         bar.dataset.id = a.id;
         bar.style.backgroundColor = a.backgroundColor || "#1b264f";
         bar.style.color = a.textColor || "#ffffff";
-        bar.innerHTML =
-            `<div class="ba-bar-inner">` +
-                `<span class="ba-bar-message">${escapeHtml(a.message)}</span>` +
-                `<button class="ba-bar-dismiss" title="Dismiss" style="color:${a.textColor || "#ffffff"};display:${a.allowDismiss !== false ? '' : 'none'}">&times;</button>` +
-            `</div>`;
+        // Built with DOM calls, never an HTML string: stored values are only ever text or style properties.
+        const inner = document.createElement("div");
+        inner.className = "ba-bar-inner";
+        const msg = document.createElement("span");
+        msg.className = "ba-bar-message";
+        msg.textContent = a.message || "";
+        const dismiss = document.createElement("button");
+        dismiss.className = "ba-bar-dismiss";
+        dismiss.title = "Dismiss";
+        dismiss.textContent = "\u00d7";
+        dismiss.style.color = a.textColor || "#ffffff";
+        if (a.allowDismiss === false) dismiss.style.display = "none";
+        inner.append(msg, dismiss);
+        bar.appendChild(inner);
 
-        bar.querySelector(".ba-bar-dismiss").addEventListener("click", () => {
+        dismiss.addEventListener("click", () => {
             dismissedIds[a.id] = true;
             bar.remove();
             adjustBodyPadding();
@@ -139,7 +155,7 @@ async function fetchCurrentUserGroups(authToken) {
         // Map userGroupIds (array of {id: "guid"} objects) to aliases
         var groupIds = (user.userGroupIds || []).map(g => g.id);
         if (groupIds.length > 0) {
-            const groupsRes = await fetch("/umbraco/api/backofficeannouncement/usergroups");
+            const groupsRes = await api("usergroups");
             if (!groupsRes.ok) return;
             const allGroups = await groupsRes.json();
 
@@ -154,7 +170,8 @@ async function fetchCurrentUserGroups(authToken) {
 
 async function poll() {
     try {
-        const res = await fetch("/umbraco/api/backofficeannouncement/status");
+        const res = await api("status");
+        if (!res.ok) return;
         const announcements = await res.json();
 
         if (Array.isArray(announcements) && announcements.length > 0) {
@@ -171,7 +188,8 @@ async function poll() {
 export const onInit = (host) => {
     injectStyles();
 
-    host.consumeContext(UMB_AUTH_CONTEXT, async (authContext) => {
+    host.consumeContext(UMB_AUTH_CONTEXT, async (ctx) => {
+        authContext = ctx;
         if (authContext) {
             try {
                 const token = await authContext.getLatestToken();
