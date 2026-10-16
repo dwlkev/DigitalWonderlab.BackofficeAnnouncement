@@ -19,20 +19,6 @@ A backoffice announcement bar for Umbraco 13 - 17. Toggle on/off a simple text a
 - Go to Settings and click the Backoffice Announcement tab
 - Toggle the announcement on/off and set your message
 
-## Telemetry (1.1.0)
-Once a day Backoffice Announcement sends us a small anonymous report so we know how many sites use it
-and on which versions. It is on by default and easy to turn off.
-
-- **Sent:** a random install ID (created on first run, stored in your Umbraco database, not derived from anything
-  about your site), the package, Umbraco and .NET versions, environment type, hosting type, database type, how many
-  announcements exist and are enabled (in bands such as `1-9`), and whether user-group targeting or non-dismissible
-  announcements are used.
-- **Never sent:** the announcement text, colours, user groups, hostnames, URLs, user names, emails or IP addresses.
-- **See it / turn it off:** the dashboard's **Settings** tab shows exactly what is sent and has an on/off switch. Or set
-  `"BackofficeAnnouncement": { "Telemetry": { "Enabled": false } }`, or `"DigitalWonderlab": { "Telemetry": { "Enabled": false } }`
-  for every Digital Wonderlab package.
-- Local development (`ASPNETCORE_ENVIRONMENT=Development`) never sends anything. Data is kept for 13 months.
-
 ## Issues / Suggestions
 - To report an issue or suggest a feature please use the GitHub issue tracker - https://github.com/dwlkev/DigitalWonderlab.BackofficeAnnouncement/issues
 
